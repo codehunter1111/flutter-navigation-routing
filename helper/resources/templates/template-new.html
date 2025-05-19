@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tool</title>
+</head>
+<body>
+  <div style="padding: 20px; font-family: Arial, sans-serif;">
+    <h1>Tool</h1>
+    <div style="margin-bottom: 10px;">
+      <label><strong>Keyword:</strong></label>
+      <input type="text" id="keyword" style="margin-left: 10px; padding: 5px; width: 300px;" />
+    </div>
+    <div style="margin-bottom: 10px;">
+      <label><strong>Message:</strong></label>
+      <textarea id="content" rows="4" style="margin-left: 10px; padding: 5px; width: 300px;"></textarea>
+    </div>
+    <div>
+      <button onclick="encrypt()" style="margin-right: 10px; padding: 10px 20px;">Encrypt</button>
+      <button onclick="decrypt()" style="padding: 10px 20px;">Decrypt</button>
+    </div>
+    <div style="margin-top: 20px;">
+      <h3>Result:</h3>
+      <textarea id="result" rows="4" readonly style="padding: 5px; width: 300px;"></textarea>
+    </div>
+  </div>
+
+  <script>
+    function sanitizeInput(input) {
+      return input.replace(/[^A-Za-z ]/g, '').toUpperCase();
+    }
+
+    function repeatKeyword(keyword, length) {
+      return keyword.repeat(Math.ceil(length / keyword.length)).slice(0, length);
+    }
+
+    function encrypt() {
+      const keyword = sanitizeInput(document.getElementById('keyword').value).replace(/ /g, ''); 
+      const message = sanitizeInput(document.getElementById('content').value);
+
+      if (!keyword || !message) {
+        alert('Please provide both keyword and message');
+        return;
+      }
+
+      let repeatedKeyword = repeatKeyword(keyword, message.replace(/ /g, '').length);
+      let encrypted = '';
+      let keywordIndex = 0;
+
+      for (let i = 0; i < message.length; i++) {
+        if (message[i] === ' ') {
+          encrypted += ' ';
+        } else {
+          const charCode = ((message.charCodeAt(i) - 65) + (repeatedKeyword.charCodeAt(keywordIndex) - 65)) % 26;
+          encrypted += String.fromCharCode(charCode + 65);
+          keywordIndex++;
+        }
+      }
+
+      document.getElementById('result').value = encrypted;
+    }
+
+    function decrypt() {
+      const keyword = sanitizeInput(document.getElementById('keyword').value).replace(/ /g, '');
+      const encryptedMessage = sanitizeInput(document.getElementById('content').value);
+
+      if (!keyword || !encryptedMessage) {
+        alert('Please provide both keyword and encrypted message');
+        return;
+      }
+
+      let repeatedKeyword = repeatKeyword(keyword, encryptedMessage.replace(/ /g, '').length);
+      let decrypted = '';
+      let keywordIndex = 0;
+
+      for (let i = 0; i < encryptedMessage.length; i++) {
+        if (encryptedMessage[i] === ' ') {
+          decrypted += ' ';
+        } else {
+          const charCode = ((encryptedMessage.charCodeAt(i) - 65) - (repeatedKeyword.charCodeAt(keywordIndex) - 65) + 26) % 26;
+          decrypted += String.fromCharCode(charCode + 65);
+          keywordIndex++;
+        }
+      }
+
+      document.getElementById('result').value = decrypted;
+    }
+  </script>
+</body>
+</html>
